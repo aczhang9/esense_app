@@ -42,20 +42,19 @@ public class SimpleLogger {
                 return false;
             }
             // Create log file and directory
-            File logDirectory = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), logFolderName);
+            File logDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + logFolderName);
             if (!logDirectory.exists()) {
                 if (!logDirectory.mkdirs()) {
                     Log.e(DEBUG_TAG, "SimpleLogger: Unable to create log directory.");
                     return false;
                 }
             }
-            logFile = new File(logDirectory, logFileName+".txt");
+            logFile = new File(logDirectory, logFileName+".csv");
             int logIdx = 0;
             while (logFile.exists()) {
                 logIdx++;
                 logFile = new File(logDirectory, logFileName
-                        +"("+Integer.toString(logIdx)+").txt");
+                        +"("+Integer.toString(logIdx)+").csv");
             }
             logFile.createNewFile();
             logFileOutputStream = new FileOutputStream(logFile);

@@ -1138,6 +1138,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                 convAcc = evt.convertAccToG(config);
                 convGyro = evt.convertGyroToDegPerSecond(config);
             }
+            // TODO: add timestamp to log
             if (!logger.log(this, logSeparator, logTerminator,
                     elapsed,
                     getString(R.string.log_sensor_event_message),
