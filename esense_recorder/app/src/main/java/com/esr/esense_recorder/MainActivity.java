@@ -3,7 +3,10 @@ package com.esr.esense_recorder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -16,12 +19,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import io.esense.esenselib.ESenseConfig;
 import io.esense.esenselib.ESenseEvent;
@@ -66,6 +75,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
 
     // eSense controller
     ESenseController eSenseController = new ESenseController();
+    Intent audioRecordServiceIntent;
 
     // Logger (null is not logging)
     private SimpleLogger logger;
@@ -88,6 +98,11 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
 
     private String LAST_SAMPLING_RATE_KEY = "LAST_SAMPLING_RATE_KEY";
     private int lastSamplingRate = 25;
+
+    // app permissions
+    private static final int PERMISSION_REQUEST_CODE = 200;
+    // debug logging
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +138,14 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         // Retrieve defaults
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         lastSamplingRate = prefs.getInt(LAST_SAMPLING_RATE_KEY, lastSamplingRate);
+
+        audioRecordServiceIntent = new Intent(this, AudioRecordService.class);
+
+        if (!checkPermission()) {
+            requestPermission();
+        } else {
+            Log.d(TAG, "Permission already granted..");
+        }
 
         // *** UI event handlers ***
 
@@ -422,6 +445,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                                     Locale.getDefault(), "%d", elapsedMillis),
                             getString(R.string.log_stop_message));
                     logger.closeLog(MainActivity.this);
+                    stopService(audioRecordServiceIntent);
                     logger = null;
                     updateLoggerPanel();
                 }
@@ -502,6 +526,10 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 getString(R.string.log_start_date_pattern), Locale.getDefault());
         String date = dateFormat.format(new Date());
+
+        // start audio recording
+        startService(audioRecordServiceIntent);
+
         // configuration details
         ESenseConfig config = eSenseController.getESenseConfig();
         if (config != null) {
@@ -1159,6 +1187,64 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         }
         updateLoggerPanel();
         updateSensorDataPanel();
+    }
+
+    private boolean checkPermission() {
+        int recordResult = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
+        int locationResult = ContextCompat.checkSelfPermission(getApplicationContext(), ACCESS_FINE_LOCATION);
+        int writeResult = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
+
+        return locationResult == PackageManager.PERMISSION_GRANTED &&
+                writeResult == PackageManager.PERMISSION_GRANTED && recordResult == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION,
+                WRITE_EXTERNAL_STORAGE, RECORD_AUDIO}, PERMISSION_REQUEST_CODE);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0) {
+
+                    boolean locationAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean storageAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean recordAccepted = grantResults[2] == PackageManager.PERMISSION_GRANTED;
+
+                    if (locationAccepted && storageAccepted && recordAccepted){
+                        Log.d(TAG, "Permission granted");
+                    } else {
+                        Log.d(TAG, "Permission denied");
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            if (shouldShowRequestPermissionRationale(ACCESS_FINE_LOCATION)) {
+                                showMessageOKCancel("You need to allow access to all permissions",
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                                    requestPermissions(new String[]{ACCESS_FINE_LOCATION,
+                                                            WRITE_EXTERNAL_STORAGE, RECORD_AUDIO}, PERMISSION_REQUEST_CODE);
+                                                }
+                                            }
+                                        });
+                                return;
+                            }
+                        }
+                    }
+                }
+                break;
+        }
+    }
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(MainActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
     }
 }
 
