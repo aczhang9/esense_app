@@ -27,7 +27,7 @@ public class AudioRecorder {
         this.context = context;
         mediaRecorder = new MediaRecorder();
         activity = "";
-        simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy_hh_mm_ss_a", Locale.getDefault());
+        simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
         audioDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "eSenseData";
         createAudioDataFolder();
     }

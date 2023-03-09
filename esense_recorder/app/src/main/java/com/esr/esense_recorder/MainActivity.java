@@ -97,12 +97,14 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
     private boolean pendingStartLog = false;
 
     private String LAST_SAMPLING_RATE_KEY = "LAST_SAMPLING_RATE_KEY";
-    private int lastSamplingRate = 25;
+    private int lastSamplingRate = 100;
 
     // app permissions
     private static final int PERMISSION_REQUEST_CODE = 200;
     // debug logging
     private static final String TAG = "MainActivity";
+    // date format
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HH:mm:ss:SSS");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -611,6 +613,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                                         lastSamplingRate)) {
                                     showToast(
                                             getString(R.string.toast_message_start_sensor_failed));
+                                    // TODO: investigate why this failure appears
                                 }
                             }
                         } catch (Exception e) {
@@ -1138,9 +1141,12 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                 convAcc = evt.convertAccToG(config);
                 convGyro = evt.convertGyroToDegPerSecond(config);
             }
-            // TODO: add timestamp to log
+            // TODO: why logging is <100 samples/second though sampling rate=100Hz?
+            Date date = new Date();
+
             if (!logger.log(this, logSeparator, logTerminator,
                     elapsed,
+                    sdf.format(date),
                     getString(R.string.log_sensor_event_message),
                     evt.getAccel()[0], evt.getAccel()[1], evt.getAccel()[2],
                     evt.getGyro()[0], evt.getGyro()[1], evt.getGyro()[2],
