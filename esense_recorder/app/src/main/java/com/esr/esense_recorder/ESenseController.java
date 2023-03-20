@@ -1,6 +1,7 @@
 package com.esr.esense_recorder;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -255,8 +256,11 @@ public class ESenseController implements ESenseConnectionListener, ESenseEventLi
                     l.onSensorNotificationsStarted(this.samplingRate);
                 }
             }
+            return true;
         }
-        return false;
+        else {
+            return false;
+        }
     }
 
     /**
@@ -481,6 +485,7 @@ public class ESenseController implements ESenseConnectionListener, ESenseEventLi
     public void onSensorChanged(ESenseEvent evt) {
         lastSensorData = evt;
         long nanoTime = System.nanoTime();
+        //Log.d("nanoTime: ", Long.toString(nanoTime));
         if (lastNotificationNanoTime > 0) {
             lastNotificationPeriodNano = nanoTime-lastNotificationNanoTime;
         } else {

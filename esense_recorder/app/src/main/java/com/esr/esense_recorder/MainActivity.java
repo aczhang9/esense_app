@@ -424,6 +424,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                             eSenseController.readESenseConfig();
                         } else if (!eSenseController.areSensorNotificationsActive()) {
                             pendingStartLog = true;
+                            Log.d(TAG, "start sensors from start record button");
                             startSensors();
                         } else {
                             startLog();
@@ -455,13 +456,14 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         }
 
         // Start sensors button
-        startSensorButton = findViewById(R.id.activity_main_start_sensor_button);
+        startSensorButton = findViewById(R.id.activity_main_start_sensor_button); // IMU monitor button
         if (startSensorButton != null) {
             startSensorButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (eSenseController.getState() == ESenseConnectionState.CONNECTED ){
                         if (!eSenseController.areSensorNotificationsActive()) {
+                            Log.d(TAG, "start sensors from start sensors button");
                             startSensors();
                         }
                     }
@@ -611,9 +613,9 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                                 // Start sensors
                                 if (!eSenseController.startSensorNotifications(
                                         lastSamplingRate)) {
+                                    Log.d("sampling rate: ", Integer.toString(lastSamplingRate));
                                     showToast(
                                             getString(R.string.toast_message_start_sensor_failed));
-                                    // TODO: investigate why this failure appears
                                 }
                             }
                         } catch (Exception e) {
@@ -1049,9 +1051,9 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
     @Override
     public void onConnected(ESenseManager manager) {
         // Read IMU config
-        if (!eSenseController.readESenseConfig()) {
+        /*if (!eSenseController.readESenseConfig()) { // TODO: why does this return false? readCharacteristic() in ESenseManager.java always returns false
             showToast(getString(R.string.toast_message_read_config_failed));
-        }
+        }*/
         // Show toast and update UI
         showToast(getString(R.string.toast_message_device_connected));
         updateUI();
@@ -1114,6 +1116,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
     public void onSensorConfigRead(ESenseConfig config) {
         updateIMUConfigurationPanel();
         if (pendingStartLog && config != null) {
+            Log.d(TAG, "start sensors from onSensorConfigRead()");
             startSensors();
         }
     }
@@ -1134,6 +1137,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         if (logger != null) {
             long elapsedMillis = (System.nanoTime()-startLogNanoTime)/1000000;
             String elapsed = String.format(Locale.getDefault(), "%d", elapsedMillis);
+            //Log.d("elapsed time: ", elapsed);
             ESenseConfig config = eSenseController.getESenseConfig();
             double[] convAcc = null;
             double[] convGyro = null;
@@ -1143,7 +1147,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
             }
             // TODO: why logging is <100 samples/second though sampling rate=100Hz?
             Date date = new Date();
-
+            Log.d("time: ", sdf.format(date));
             if (!logger.log(this, logSeparator, logTerminator,
                     elapsed,
                     sdf.format(date),

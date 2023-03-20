@@ -2,6 +2,7 @@ package com.esr.esense_recorder;
 
 import android.content.Context;
 import android.media.MediaScannerConnection;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
@@ -41,14 +42,18 @@ public class SimpleLogger {
                 Log.e(DEBUG_TAG, "SimpleLogger: No external storage for log file.");
                 return false;
             }
-            // Create log file and directory
-            File logDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + logFolderName);
+
+            File logDirectory = new File(context.getExternalFilesDir(null), "/eSenseData");
+
+            // create storage directory if it does not exist
+            // on watch, conversation log file will be saved at: /storage/emulated/0/Android/data/com.example.myapplication/files/conversation_logs/
             if (!logDirectory.exists()) {
                 if (!logDirectory.mkdirs()) {
                     Log.e(DEBUG_TAG, "SimpleLogger: Unable to create log directory.");
                     return false;
                 }
             }
+
             logFile = new File(logDirectory, logFileName+".csv");
             int logIdx = 0;
             while (logFile.exists()) {

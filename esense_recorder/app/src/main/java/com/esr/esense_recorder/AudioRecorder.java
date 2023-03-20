@@ -28,7 +28,7 @@ public class AudioRecorder {
         mediaRecorder = new MediaRecorder();
         activity = "";
         simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
-        audioDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "eSenseData";
+        audioDirPath = context.getExternalFilesDir(null) + "/eSenseData"; //Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "eSenseData";
         createAudioDataFolder();
     }
 
@@ -68,8 +68,11 @@ public class AudioRecorder {
                 mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                 mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                 mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+                //mediaRecorder.setAudioEncodingBitRate(32000);
                 mediaRecorder.setAudioEncodingBitRate(256000);
-                mediaRecorder.setAudioSamplingRate(44100);
+                //mediaRecorder.setAudioSamplingRate(44100);
+                mediaRecorder.setAudioSamplingRate(16000);
+
             }
         } catch (Exception e){
             e.printStackTrace();
