@@ -55,12 +55,14 @@ public class SimpleLogger {
             }
 
             logFile = new File(logDirectory, logFileName+".csv");
+/*
             int logIdx = 0;
             while (logFile.exists()) {
                 logIdx++;
                 logFile = new File(logDirectory, logFileName
                         +"("+Integer.toString(logIdx)+").csv");
             }
+ */
             logFile.createNewFile();
             logFileOutputStream = new FileOutputStream(logFile);
             logFileWriter = new BufferedWriter(new OutputStreamWriter(logFileOutputStream));

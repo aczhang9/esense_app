@@ -422,11 +422,13 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                         if (eSenseController.getESenseConfig() == null) {
                             pendingStartLog = true;
                             eSenseController.readESenseConfig();
+                            Log.d(TAG, "read config from start record button");
                         } else if (!eSenseController.areSensorNotificationsActive()) {
                             pendingStartLog = true;
                             Log.d(TAG, "start sensors from start record button");
                             startSensors();
                         } else {
+                            Log.d(TAG, "start log from start record button");
                             startLog();
                         }
                     } else {
@@ -447,6 +449,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                             String.format(
                                     Locale.getDefault(), "%d", elapsedMillis),
                             getString(R.string.log_stop_message));
+                    // TODO: add timestamp of sensor stop and other log messages
                     logger.closeLog(MainActivity.this);
                     stopService(audioRecordServiceIntent);
                     logger = null;
@@ -463,7 +466,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                 public void onClick(View v) {
                     if (eSenseController.getState() == ESenseConnectionState.CONNECTED ){
                         if (!eSenseController.areSensorNotificationsActive()) {
-                            Log.d(TAG, "start sensors from start sensors button");
+                            Log.d(TAG, "start sensors from IMU monitor button");
                             startSensors();
                         }
                     }
@@ -524,6 +527,8 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         String folderName = getString(R.string.log_folder);
         SimpleDateFormat logFileFormat = new SimpleDateFormat(
                 getString(R.string.log_file_date_pattern), Locale.getDefault());
+        // TODO: create meta data logger
+        // TODO: initialize headers in data logger
         logger = new SimpleLogger(folderName, logFileFormat.format(new Date()));
         // First log
         startLogNanoTime = System.nanoTime();
@@ -659,6 +664,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         }, UI_UPDATE_DELAY_MILLIS);
     }
 
+    // TODO: does this cause the app to stop recording IMU when phone screen is off?
     @Override
     protected void onPause() {
         super.onPause();
@@ -1068,6 +1074,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                     String.format(
                             Locale.getDefault(), "%d", elapsedMillis),
                     getString(R.string.log_disconnection_message));
+            // TODO: add timestamp to log
             logger.closeLog(this);
             logger = null;
         }
@@ -1088,7 +1095,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
             long elapsedMillis = (System.nanoTime()-startLogNanoTime)/1000000;
             String elapsed = String.format(Locale.getDefault(), "%d", elapsedMillis);
             if (!logger.log(this, logSeparator, logTerminator,
-                    elapsed,
+                    elapsed, // TODO: log timestamp
                     getString(R.string.log_button_event_message))) {
                 // Log failed
                 logger.closeLog(this);
@@ -1191,7 +1198,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
             long elapsedMillis = (System.nanoTime()-startLogNanoTime)/1000000;
             logger.log(this, logSeparator, logTerminator,
                     String.format(
-                            Locale.getDefault(), "%d", elapsedMillis),
+                            Locale.getDefault(), "%d", elapsedMillis), // TODO: log timestamp
                     getString(R.string.log_sensors_stopped_message));
             logger.closeLog(this);
             logger = null;
