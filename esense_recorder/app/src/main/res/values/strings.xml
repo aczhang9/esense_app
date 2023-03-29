@@ -5,7 +5,7 @@
     <string name="activity_main_connect_button_text">Connect eSense device</string>
     <string name="activity_main_disconnect_button_text">Disconnect</string>
     <string name="activity_main_connection_state_heading_text">Connection state:</string>
-    <string name="activity_main_imu_monitor_section_heading_text">IMU monitor</string>
+    <string name="activity_main_imu_monitor_section_heading_text">Start/Stop IMU sensors</string>
     <string name="activity_main_imu_configuration_section_heading_text">IMU configuration</string>
     <string name="activity_main_gyro_range_heading_text">Gyro. range:</string>
     <string name="activity_main_gyro_lpf_heading_text">Gyro. LPF:</string>
@@ -18,7 +18,7 @@
     <string name="activity_main_converted_acc_data_text">Converted accelerometer data (g):</string>
     <string name="activity_main_raw_gyro_data_text">Raw gyroscope data:</string>
     <string name="activity_main_converted_gyro_data_text">Converted gyroscope data (deg/sec):</string>
-    <string name="activity_main_logger_section_heading_text">Data logger</string>
+    <string name="activity_main_logger_section_heading_text">Log IMU data</string>
     <string name="activity_main_start_record_button_text">Start</string>
     <string name="activity_main_stop_record_button_text">Stop</string>
     <string name="activity_main_record_state_heading_text">Record state:</string>
