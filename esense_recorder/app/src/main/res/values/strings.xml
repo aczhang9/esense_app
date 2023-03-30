@@ -60,14 +60,16 @@
 
     <string name="log_folder">eSenseData</string>
     <string name="log_file_date_pattern">yyyyMMdd\'_\'HHmmss\'_eSense_IMU\'</string>
+    <string name="meta_log_file_date_pattern">yyyyMMdd\'_\'HHmmss\'_eSense_meta\'</string>
     <string name="log_field_separator">,</string>
     <string name="log_line_terminator">\n</string>
     <string name="log_start_date_pattern">yyyy-MM-dd HH:mm:ss.SSS</string>
+    <string name="meta_log_start_message">Start meta log.</string>
     <string name="log_start_message">Start log.</string>
     <string name="log_stop_message">Log stopped.</string>
     <string name="log_sensors_stopped_message">Sensor stopped.</string>
     <string name="log_disconnection_message">Device disconnected.</string>
-    <string name="log_sensor_event_message">Sensor notification.</string>
+    <string name="log_sensor_event_message">SN </string>
     <string name="log_button_event_message">Device button pressed.</string>
 
     <string name="toast_message_bt_activation_rejected">Bluetooth activation rejected.</string>
@@ -86,6 +88,7 @@
     <string name="toast_sampling_rate_out_of_bounds">Invalid sampling rate value!</string>
     <string name="toast_sampling_rate_illegal">Invalid sampling rate value!</string>
     <string name="toast_log_failed">Log failed!</string>
+    <string name="toast_meta_log_failed">Meta log failed!</string>
     <string name="toast_message_gyro_range_failed">Unable to change gyro range!</string>
     <string name="toast_message_gyro_lpf_failed">Unable to change gyro LPF!</string>
     <string name="toast_message_acc_range_failed">Unable to change acc range!</string>

@@ -56,9 +56,13 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
     // eSense controller
     ESenseController eSenseController = new ESenseController();
     Intent audioRecordServiceIntent;
+    Intent sensorRecordServiceIntent;
+
 
     // Logger (null is not logging)
     private SimpleLogger logger;
+    private SimpleLogger metaLogger;
+
     private long startLogNanoTime;
 
     // Log parameters
@@ -108,6 +112,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         lastSamplingRate = prefs.getInt(LAST_SAMPLING_RATE_KEY, lastSamplingRate);
 
         audioRecordServiceIntent = new Intent(this, AudioRecordService.class);
+        sensorRecordServiceIntent = new Intent(this, SensorRecordService.class);
 
         if (!checkPermission()) {
             requestPermission();
@@ -169,11 +174,12 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
 
         // Start record button
         startRecordButton = findViewById(R.id.activity_main_start_record_button);
-        //startRecordButton.setEnabled(false);
         if (startRecordButton != null) {
             startRecordButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    startService(sensorRecordServiceIntent); // need to pass logger and eSense object to service
+
                     if (logger != null && logger.isLogging()) {
                         // Ignore when already logging
                         return;
@@ -188,7 +194,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                         if (!eSenseController.areSensorNotificationsActive()) { // this statement is executed first time startRecordButton is pressed
                             pendingStartLog = true;
                             Log.d(TAG, "start sensors from start record button");
-                            startSensors(); // also done in IMUmonitor button
+                            startSensors(); //
                         }
 
                         Log.d(TAG, "start log from start record button");
@@ -214,7 +220,10 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
                             getString(R.string.log_stop_message));
                     // TODO: add timestamp of sensor stop and other log messages
                     logger.closeLog(MainActivity.this);
+
                     stopService(audioRecordServiceIntent);
+                    stopService(sensorRecordServiceIntent);
+
                     logger = null;
                     updateLoggerPanel();
                 }
@@ -232,11 +241,14 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         }
         // Create logger
         String folderName = getString(R.string.log_folder);
-        SimpleDateFormat logFileFormat = new SimpleDateFormat(
-                getString(R.string.log_file_date_pattern), Locale.getDefault());
+        SimpleDateFormat logFileFormat = new SimpleDateFormat(getString(R.string.log_file_date_pattern), Locale.getDefault());
+        SimpleDateFormat metaLogFileFormat = new SimpleDateFormat(getString(R.string.meta_log_file_date_pattern), Locale.getDefault());
+
         // TODO: create meta data logger
         // TODO: initialize headers in data logger
         logger = new SimpleLogger(folderName, logFileFormat.format(new Date()));
+        metaLogger = new SimpleLogger(folderName, metaLogFileFormat.format(new Date()));
+
         // First log
         startLogNanoTime = System.nanoTime();
         SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -277,13 +289,15 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
         }
         if (!logger.log(this, logSeparator, logTerminator,
                 "0",
-                getString(R.string.log_start_message),
+                getString(R.string.meta_log_start_message),
                 date)) {
             // Log failed
             logger.closeLog(this);
             logger = null;
-            showToast(getString(R.string.toast_log_failed));
+            showToast(getString(R.string.toast_meta_log_failed));
         }
+        //metaLogger.closeLog(MainActivity.this); // TODO: resolve this double closing of meta logger
+        //metaLogger = null;
         updateLoggerPanel();
     }
 
@@ -375,6 +389,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
     }
 
     // TODO: does this cause the app to stop recording IMU when phone screen is off?
+    /*
     @Override
     protected void onPause() {
         super.onPause();
@@ -397,7 +412,7 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
             eSenseController.disconnect();
         }
     }
-
+    */
     /**
      * Shows a toast.
      *
@@ -637,7 +652,6 @@ public class MainActivity extends BluetoothCheckActivity implements BluetoothChe
             }
             // TODO: why logging is <100 samples/second though sampling rate=100Hz?
             Date date = new Date();
-            Log.d("time: ", sdf.format(date));
             if (!logger.log(this, logSeparator, logTerminator,
                     elapsed,
                     sdf.format(date),

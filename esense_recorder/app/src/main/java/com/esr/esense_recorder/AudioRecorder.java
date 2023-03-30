@@ -67,11 +67,11 @@ public class AudioRecorder {
             if(mediaRecorder != null){
                 mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                 mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-                //mediaRecorder.setAudioEncodingBitRate(32000);
-                mediaRecorder.setAudioEncodingBitRate(256000);
+                mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_WB);
+                mediaRecorder.setAudioEncodingBitRate(23050);
                 //mediaRecorder.setAudioSamplingRate(44100);
                 mediaRecorder.setAudioSamplingRate(16000);
+                mediaRecorder.setAudioChannels(1);
 
             }
         } catch (Exception e){
